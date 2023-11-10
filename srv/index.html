@@ -6,11 +6,21 @@
     <link rel="stylesheet" type="text/css" href="style/passkey-demo.css">
   </head>
   <body>
-    welcome home
+    <header>
+      <p>welcome home</p>
+    </header>
 
-    <form id="authenticate">
-      <button id="login">Login</button>
-      <button id="register">Register</button>
-    </form>
+    <section id="authenticate">
+      <section class="supported">
+        <button id="show-login" type="button">Login</button>
+        <button id="show-register" type="button">Register</button>
+      </section>
+
+      <form id="register" class="register" action="/register">
+        <label for="register-name">Username</label>
+        <input id="register-name" type="text" name="name" autocomplete="webauthn">
+        <button type="submit">Register</button>
+      </form>
+    </section>
   </body>
 </html>
