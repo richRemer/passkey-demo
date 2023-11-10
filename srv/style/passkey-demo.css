@@ -1,0 +1,9 @@
+#login,
+#register {
+  display: none;
+}
+
+.detected #login,
+.detected #register {
+  display: inline-block;
+}
