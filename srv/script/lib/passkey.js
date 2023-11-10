@@ -4,7 +4,7 @@ export async function detect() {
   try {
     const detected = await Promise.all([
       PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(),
-      PublicKeyCredential.isConditionalMediationAvailable()
+      //PublicKeyCredential.isConditionalMediationAvailable()
     ]);
 
     return detected.every(v => v);
