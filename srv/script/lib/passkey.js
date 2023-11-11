@@ -31,6 +31,17 @@ export function createOptions(registration, name=location.hostname) {
   return {publicKey};
 }
 
+export function encodeCredential(credential) {
+  const encoded = {};
+
+  encoded.authenticatorAttachment = credential.authenticatorAttachment;
+  encoded.id = credential.id;
+  encoded.response = encodeResponse(credential.response);
+  encoded.type = credential.type;
+
+  return encoded;
+}
+
 function base64decode(base64) {
   const ascii = atob(base64);
   const bytes = new Uint8Array([...ascii].map(ch => ch.charCodeAt(0)));
@@ -41,4 +52,14 @@ function base64encode(buffer) {
   const bytes = new Uint8Array(buffer);
   const string = String.fromCharCode(...bytes);
   return btoa(string);
+}
+
+function encodeResponse(response) {
+  const encoded = {};
+  const clientDataJSON = base64encode(response.clientDataJSON);
+
+  encoded.attestationObject = base64encode(response.attestationObject);
+  encoded.clientData = JSON.parse(atob(clientDataJSON));
+
+  return encoded;
 }

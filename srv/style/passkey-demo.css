@@ -1,11 +1,11 @@
-#authenticate > * {
+#auth > * {
   display: none;
 }
 
-#authenticate.supported > .supported {
+#auth.detected > .detected {
   display: block;
 }
 
-#authenticate.register > .register {
+#auth.register > .register {
   display: block;
 }

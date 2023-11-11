@@ -11,7 +11,7 @@ const users = new UserRepository(User);
 app.use(express.static(`${config.root}/srv`));
 app.use(bodyParser.json());
 
-app.post("/register", async (req, res) => {
+app.post("/registration", async (req, res) => {
   const registration = await users.register(req.body.name);
   res.json(registration);
 });

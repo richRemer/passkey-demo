@@ -1,37 +1,33 @@
-import {detect, createOptions} from "./lib/passkey.js";
+import {createOptions, detect, encodeCredential} from "./lib/passkey.js";
+import post from "./lib/post.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const authenticate = document.getElementById("authenticate");
-  const showRegister = document.getElementById("show-register");
-  const register = document.getElementById("register");
-  const name = document.getElementById("register-name");
+  const {auth, passkey, register, name} = bindUI(document);
 
-  showRegister.addEventListener("click", () => {
-    authenticate.classList.remove("supported");
-    authenticate.classList.add("register");
+  passkey.addEventListener("click", () => {
+    auth.classList.remove("detected");
+    auth.classList.add("register");
   });
 
-  register.addEventListener("submit", async evt => {
-    evt.preventDefault();
+  register.addEventListener("click", async evt => {
+    const registration = await post("/registration", {name: name.value});
+    const options = createOptions(registration, "Local Dev");
+    const cred = await navigator.credentials.create(options);
+    const credential = encodeCredential(cred);
 
-    const uri = evt.target.action;
-    const headers = {"Content-Type": "application/json"};
-    const body = JSON.stringify({name: name.value});
-    const res = await fetch(uri, {method: "POST", headers, body});
-    const reply = await res.json();
-
-    if (res.ok) {
-      const opts = createOptions(reply, "Local Dev");
-      const cred = await navigator.credentials.create(opts);
-
-      window.cred = cred;
-      console.info(cred);
-    } else {
-      console.error(reply);
-    }
+    console.info(credential);
   });
 
   if (await detect()) {
-    authenticate.classList.add("supported");
+    auth.classList.add("detected");
   }
 });
+
+function bindUI(document) {
+  const auth = document.getElementById("auth");
+  const passkey = document.getElementById("passkey");
+  const register = document.getElementById("register");
+  const name = document.getElementById("name");
+
+  return {auth, passkey, register, name};
+}
