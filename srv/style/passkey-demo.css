@@ -9,3 +9,7 @@
 #auth.register > .register {
   display: block;
 }
+
+#auth.authenticated > .authenticated {
+  display: block;
+}

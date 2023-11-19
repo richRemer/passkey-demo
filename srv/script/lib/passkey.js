@@ -1,13 +1,9 @@
-const {location, PublicKeyCredential} = window;
-const ecdsa = Object.freeze({alg: -7, type: "public-key"});
-const pkcs1 = Object.freeze({alg: -257, type: "public-key"});
-const algo = {ecdsa, pkcs1};
+const {PublicKeyCredential} = window;
 
 export async function detect() {
   try {
     const detected = await Promise.all([
-      PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(),
-      //PublicKeyCredential.isConditionalMediationAvailable()
+      PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
     ]);
 
     return detected.every(v => v);
@@ -17,49 +13,61 @@ export async function detect() {
   }
 }
 
-export function createOptions(registration, name=location.hostname) {
-  const {hostname: id} = location;
-  const publicKey = {...registration};
+export function decodeCreationOptions(creationOptions) {
+  return {
+    publicKey: {
+      ...creationOptions,
+      user: {
+        ...creationOptions.user,
+        id: base64Decode(creationOptions.user.id)
+      },
+      challenge: base64Decode(creationOptions.challenge)
+    }
+  };
+}
 
-  publicKey.user = {...publicKey.user};
-  publicKey.user.id = base64decode(publicKey.user.id);
-  publicKey.challenge = base64decode(publicKey.challenge);
-  publicKey.rp = {name, id};
-  publicKey.pubKeyCredParams = [algo.ecdsa, algo.pkcs1];
-  publicKey.authenticatorSelection = {requireResidentKey: true};
-
-  return {publicKey};
+export function decodeRequestOptions(requestOptions) {
+  return {
+    publicKey: {
+      ...requestOptions,
+      challenge: base64Decode(requestOptions.challenge)
+    }
+  };
 }
 
 export function encodeCredential(credential) {
-  const encoded = {};
-
-  encoded.authenticatorAttachment = credential.authenticatorAttachment;
-  encoded.id = credential.id;
-  encoded.response = encodeResponse(credential.response);
-  encoded.type = credential.type;
-
-  return encoded;
+  return {
+    authenticatorAttachment: credential.authenticatorAttachment,
+    id: credential.id,
+    response: encodeResponse(credential.response),
+    type: credential.type
+  };
 }
 
-function base64decode(base64) {
+function base64Decode(string) {
+  const base64 = string.replace(/_/g, "/").replace(/-/g, "+")
   const ascii = atob(base64);
   const bytes = new Uint8Array([...ascii].map(ch => ch.charCodeAt(0)));
   return bytes.buffer;
 }
 
-function base64encode(buffer) {
+function base64Encode(buffer) {
   const bytes = new Uint8Array(buffer);
-  const string = String.fromCharCode(...bytes);
-  return btoa(string);
+  const ascii = String.fromCharCode(...bytes);
+  const base64 = btoa(ascii);
+  return base64.replace(/\//g, "_").replace(/\+/g, "-").replace(/=+$/, "");
 }
 
 function encodeResponse(response) {
-  const encoded = {};
-  const clientDataJSON = base64encode(response.clientDataJSON);
+  return {
+    attestationObject: encode(response.attestationObject),
+    authenticatorData: encode(response.authenticatorData),
+    clientDataJSON: base64Encode(response.clientDataJSON),
+    signature: encode(response.signature),
+    userHandle: encode(response.userHandle)
+  };
 
-  encoded.attestationObject = base64encode(response.attestationObject);
-  encoded.clientData = JSON.parse(atob(clientDataJSON));
-
-  return encoded;
+  function encode(buffer) {
+    return buffer ? base64Encode(buffer) : undefined;
+  }
 }

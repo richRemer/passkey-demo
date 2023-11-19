@@ -13,13 +13,17 @@
     <section id="auth">
       <section class="detected">
         <button id="login" type="button">Login</button>
-        <button id="passkey" type="button">Create Passkey</button>
+        <button id="register" type="button">Register Passkey</button>
       </section>
 
       <section class="register">
-        <label for="name">Username</label>
-        <input id="name" type="text" name="name" autocomplete="username webauthn">
-        <button id="register" type="button">Register</button>
+        <label for="name">Choose Username</label>
+        <input id="name" name="username" autocomplete="webauthn username">
+        <button id="passkey" type="button">Register Passkey</button>
+      </section>
+
+      <section class="authenticated">
+        <button id="logout" type="buttone">Logout</button>
       </section>
     </section>
   </body>
